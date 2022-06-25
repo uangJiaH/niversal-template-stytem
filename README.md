@@ -21,7 +21,7 @@ npm run build
 ### Lints and fixes files
 
 ```
-npm run lint9000
+npm run lint900077
 ```
 
 ### Customize configuration
