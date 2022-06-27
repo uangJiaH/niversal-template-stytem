@@ -1,9 +1,11 @@
 <template>
   <div class="login-container">
-    <el-form :model="loginForm" class="loginfrom">
+    <el-form :model="loginForm" class="loginfrom" ref="Loginfrom">
       <div class="title-container">
         <h2 class="title">用户登录</h2>
-        <svg-icon className="svg-language" icon="language"></svg-icon>
+        <el-tooltip content="国际化" placement="bottom" effect="light">
+          <svg-icon className="svg-language" icon="language"></svg-icon>
+        </el-tooltip>
       </div>
       <el-form-item prop="username">
         <span class="svg-container">
@@ -20,15 +22,13 @@
           </el-icon>
         </span>
         <el-input
-          :Type="inputType"
+          :type="inputType ? 'text' : 'password'"
           v-model="loginForm.password"
           placeholder="password"
         />
-        <span class="svg-pwd" @click="handllePassWordStatus">
+        <span class="svg-pwd" @click="inputType = !inputType">
           <el-icon>
-            <svg-icon
-              :icon="inputType === 'password' ? 'eye' : 'eye-open'"
-            ></svg-icon>
+            <svg-icon :icon="inputType ? 'eye-open' : 'eye'"></svg-icon>
           </el-icon>
         </span>
       </el-form-item>
@@ -45,19 +45,48 @@
 </template>
 
 <script setup>
+import util from '../../utils/util'
 import { reactive, ref } from 'vue'
+import { useStore } from 'vuex'
+import { validatePassword } from './rule'
+import md5 from 'md5'
+const store = useStore()
 const loginForm = reactive({
-  username: '',
-  password: ''
+  username: 'admin',
+  password: '123456'
 })
-const inputType = ref('password')
-console.log(loginForm)
+const loginrules = {
+  username: [
+    {
+      required: true,
+      message: '用户名为必填项',
+      trigger: 'blur'
+    }
+  ],
+  password: [
+    {
+      required: true,
+      trigger: 'blur',
+      validator: validatePassword
+    }
+  ]
+}
+const Loginfrom = ref()
 const handleLoginSubmit = () => {
-  console.log('submit!')
+  Loginfrom.value.validate((valid) => {
+    if (!valid) return
+    if (valid) {
+      const newRoleForm = util.DeepCopy(loginForm)
+
+      newRoleForm.password = md5(newRoleForm.password)
+
+      store.dispatch('user/login', newRoleForm)
+    } else {
+      console.log('error')
+    }
+  })
 }
-const handllePassWordStatus = () => {
-  inputType.value = inputType.value === 'password' ? 'text' : 'password'
-}
+const inputType = ref(false)
 </script>
 
 <style lang="scss" scoped>
@@ -122,5 +151,11 @@ $cursor: #fff;
       }
     }
   }
+}
+::v-deep .el-form-item__content {
+  flex-wrap: nowrap !important;
+}
+::v-deep .svg-pwd {
+  margin-right: 20px;
 }
 </style>
