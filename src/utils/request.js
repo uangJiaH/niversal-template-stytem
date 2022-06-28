@@ -2,7 +2,7 @@ import axios from 'axios'
 import loading from '@/utils/loading'
 import { ElMessage } from 'element-plus'
 import md5 from 'md5'
-// import store from '@/store/index';
+import store from '@/store/index'
 // import router from '@/router';
 
 let showMessage = false
@@ -17,7 +17,7 @@ instance.interceptors.request.use(
     // TODO 添加token
     // loading.elLoading.start()
     loading.elLoading.start()
-    // config.headers.Authorization = `Bearer ${store.getters.getToken}`;
+    config.headers.Authorization = `Bearer ${store.getters.token}`
     const { icode, time } = getTestICode()
     config.headers.icode = icode
     config.headers.codeType = time
@@ -25,6 +25,7 @@ instance.interceptors.request.use(
   },
   function (error) {
     // 对请求错误做些什么
+    loading.elLoading.done()
     return Promise.reject(error)
   }
 )
@@ -32,8 +33,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   function (response) {
     // 对响应数据做点什么
-    // loading.elLoading.done()
     loading.elLoading.done()
+
     const {
       data: { data, message },
       status

@@ -7,6 +7,7 @@ import router from './router'
 import store from './store'
 import './style/index.scss'
 import './iconfont/iconfont.css'
+import './permission'
 import installIcons from '@/icons'
 
 const app = createApp(App)

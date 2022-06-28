@@ -9,7 +9,7 @@ module.exports = defineConfig({
   // 配置跨域
   publicPath: './',
   devServer: {
-    open: true,
+    open: false,
     port: 9090,
     https: false,
     host: 'localhost',
