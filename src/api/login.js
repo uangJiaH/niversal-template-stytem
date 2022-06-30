@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-
+// 获取token
 const login = (data) => {
   return request(
     {
@@ -10,6 +10,17 @@ const login = (data) => {
     true
   )
 }
+// 获取用户信息
+const getUserInfo = () => {
+  return request(
+    {
+      url: '/sys/profile',
+      method: 'GET'
+    },
+    true
+  )
+}
 export default {
-  login
+  login,
+  getUserInfo
 }

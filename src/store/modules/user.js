@@ -1,39 +1,50 @@
-import loginApi from '../../api/login'
-import getUserInfo from '@/api/sys'
-import { setItem, getItem, removeAllItem } from '@/utils/storage'
+import UserApi from '../../api/login'
+import { setItem, getItem, removeItem } from '@/utils/storage'
+
 export default {
   namespaced: true,
   state: () => ({
     token: getItem('token') || '',
-    userTnfo: {}
+    userInfo: getItem('userInfo') || ''
   }),
   mutations: {
     setToken(state, token) {
       state.token = token
       setItem('token', token)
     },
-    loginOut(state) {
-      removeAllItem()
-      state.token = ''
-    },
+
     setUserInfo(state, userInfo) {
       state.userInfo = userInfo
+      setItem('userInfo', userInfo)
     }
   },
   actions: {
+    // 获取token
     async login({ commit }, payload) {
       try {
-        const res = await loginApi.login(payload)
-        commit('setToken', res.token)
-        console.log(res, '0000')
+        const response = await UserApi.login(payload)
+        commit('setToken', response.token)
+        return response
       } catch (error) {
-        console.log(error, '1111')
+        console.log(error)
       }
     },
-    async getUserInfo(context) {
-      const res = await getUserInfo()
-      this.commit('user/setUserInfo', res)
-      return res
+    // 获取用户信息
+    async getUserInfo({ commit }) {
+      try {
+        const response = await UserApi.getUserInfo()
+        commit('setUserInfo', response)
+        console.log(response, 'getuserInfo')
+        return response
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    logout({ commit }) {
+      commit('setToken', '')
+      commit('setUserInfo', '')
+      removeItem('token')
+      removeItem('userInfo')
     }
   }
 }

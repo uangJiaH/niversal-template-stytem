@@ -1,6 +1,11 @@
 <template>
   <div class="login-container">
-    <el-form :model="loginForm" class="loginfrom" ref="loginrules">
+    <el-form
+      :model="loginForm"
+      class="loginfrom"
+      ref="LoginFormref"
+      :rules="loginrules"
+    >
       <div class="title-container">
         <h2 class="title">用户登录</h2>
         <el-tooltip content="国际化" placement="bottom" effect="light">
@@ -50,6 +55,7 @@ import { reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { validatePassword } from './rule'
+import { setTimeStamp } from '../../utils/auth'
 import md5 from 'md5'
 const store = useStore()
 const router = useRouter()
@@ -57,7 +63,7 @@ const loginForm = reactive({
   username: 'admin',
   password: '123456'
 })
-const loginrules = {
+const loginrules = reactive({
   username: [
     {
       required: true,
@@ -72,20 +78,35 @@ const loginrules = {
       validator: validatePassword
     }
   ]
-}
-const Loginfrom = ref()
-const handleLoginSubmit = () => {
-  Loginfrom.value.validate((valid) => {
-    if (!valid) return
+})
+console.log(loginrules)
+const LoginFormref = ref()
+// const handleLoginSubmit = async() => {
+//   Loginfrom.value.validate((valid) => {
+//     if (!valid) return
+//     if (valid) {
+//       const newRoleForm = util.DeepCopy(loginForm)
+
+//       newRoleForm.password = md5(newRoleForm.password)
+
+//       store.dispatch('user/login', newRoleForm)
+//       router.push({ name: 'layout' })
+//     } else {
+//       console.log('error')
+//     }
+//   })
+// }
+
+const handleLoginSubmit = async () => {
+  if (!LoginFormref.value) return
+  await LoginFormref.value.validate(async (valid) => {
     if (valid) {
-      const newRoleForm = util.DeepCopy(loginForm)
+      const newLoginForm = util.DeepCopy(loginForm)
+      newLoginForm.password = md5(newLoginForm.password)
 
-      newRoleForm.password = md5(newRoleForm.password)
-
-      store.dispatch('user/login', newRoleForm)
-      router.push({ name: 'layout' })
-    } else {
-      console.log('error')
+      const response = await store.dispatch('user/login', newLoginForm)
+      setTimeStamp()
+      if (response.token) router.push('/')
     }
   })
 }
